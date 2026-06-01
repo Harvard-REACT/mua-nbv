@@ -12,7 +12,7 @@
   <img src="docs/assets/hero_rss2026.png" alt="MUA-NBV teaser" width="92%" />
 </p>
 
-## Overview
+## 🎉 This paper is accepted to Robotics: Science and Systems (RSS) 2026 🎉
 
 MUA-NBV is a ROS 2 implementation of paper - **[Motion Uncertainty-Aware Next-Best-View Planning for Moving Object Reconstruction](https://arxiv.org/abs/2605.17593)**
 
