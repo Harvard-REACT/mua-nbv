@@ -153,3 +153,9 @@ source install/setup.bash
 ros2 run simulation_bringup experiment_coordinator \
   --ros-args -p target_mode:=dynamic -p pipeline_mode:=full -p iteration:=30
 ```
+
+## Acknowledgment
+
+This work was funded by Project CETI via grants from Dalio Philanthropies and OceanX; Sea Grape Foundation; Virgin Unite; and Rosamund Zander/Hansjorg Wyss through The Audacious Project, a collaborative funding initiative housed at TED. 
+
+This work was also made possible in part by a gift from the Chan Zuckerberg Initiative Foundation to establish the Kempner Institute for the Study of Natural and Artificial Intelligence.
