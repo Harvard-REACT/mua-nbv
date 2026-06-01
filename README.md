@@ -12,7 +12,10 @@
   <img src="docs/assets/hero_rss2026.png" alt="MUA-NBV teaser" width="92%" />
 </p>
 
-## 🎉 This paper is accepted to Robotics: Science and Systems (RSS) 2026 🎉
+
+## 🎉 This paper is accepted to Robotics: Science and Systems (RSS) 2026
+
+## Overview
 
 MUA-NBV is a ROS 2 implementation of paper - **[Motion Uncertainty-Aware Next-Best-View Planning for Moving Object Reconstruction](https://arxiv.org/abs/2605.17593)**
 
@@ -39,7 +42,7 @@ At each planning iteration, the pipeline performs the following steps:
    Candidate viewpoints are sampled around the predicted object location using an uncertainty-adaptive ellipse whose axes expand with the predicted positional uncertainty.
 
 3. **Filter reachable viewpoints.**
-   Candidate viewpoints that cannot be reached within one planning step under the robot motion limits are discarded.
+   Candidate viewpoints that cannot be reached within one The robot replans viewpoints as the object moves, changing its relative viewing angle instead of only maintaining proximity. This allows the depth camera to observe new object surfaces and incrementally improve reconstruction coverage.planning step under the robot motion limits are discarded.
 
 4. **Evaluate expected coverage.**
    Each feasible viewpoint is evaluated by estimating its expected coverage-driven NBV score over samples from the predictive object-state belief.
