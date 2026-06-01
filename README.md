@@ -17,7 +17,7 @@
 
 ## Citation
 
-If you find MUA-NBV useful in your work, please cite our paper:
+If you find MUA-NBV useful in your work, please cite our **[paper](https://arxiv.org/abs/2605.17593)**:
 
 ```bibtex
 @misc{li2026muanbv,
@@ -32,7 +32,7 @@ If you find MUA-NBV useful in your work, please cite our paper:
 
 ## Overview
 
-MUA-NBV is a ROS 2 implementation of paper - **[Motion Uncertainty-Aware Next-Best-View Planning for Moving Object Reconstruction](https://arxiv.org/abs/2605.17593)**
+MUA-NBV is a ROS 2 implementation of **[Motion Uncertainty-Aware Next-Best-View Planning for Moving Object Reconstruction](https://arxiv.org/abs/2605.17593)**
 
 The framework addresses active 3D reconstruction of an unknown rigid object undergoing planar motion. At each planning step, the robot receives a depth observation and a noisy planar object-position measurement. A fixed-lag GP-based smoother estimates a Gaussian belief over object position and latent velocity, predicts one step ahead, and the planner selects the next viewpoint by maximizing expected coverage under this predictive uncertainty.
 
