@@ -53,7 +53,7 @@ At each planning iteration, the pipeline performs the following steps:
 ## Real-World Replanning Sequence
 
 <p align="center">
-  <img src="docs/assets/testbed.png" alt="Testbed setup" width="86%" />
+  <img src="docs/assets/testbed.png" alt="Testbed setup" width="100%" />
 </p>
 
 This representative testbed sequence shows the planner operating in closed loop on a physical robot. As the object moves along the trajectory, the robot replans its camera viewpoint at each iteration. Rather than simply following the object, the planner changes the robot-object viewing geometry to expose previously unseen surfaces and improve reconstruction coverage over time.
