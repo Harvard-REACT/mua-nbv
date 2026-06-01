@@ -141,4 +141,4 @@ ros2 run simulation_bringup experiment_coordinator \
 
 ## Citation
 
-- <https://arxiv.org/abs/2605.17593>
+Coming soon...
