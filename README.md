@@ -18,11 +18,11 @@ MUA-NBV is a ROS 2 implementation of paper - **[Motion Uncertainty-Aware Next-Be
 
 The framework addresses active 3D reconstruction of an unknown rigid object undergoing planar motion. At each planning step, the robot receives a depth observation and a noisy planar object-position measurement. A fixed-lag GP-based smoother estimates a Gaussian belief over object position and latent velocity, predicts one step ahead, and the planner selects the next viewpoint by maximizing expected coverage under this predictive uncertainty.
 
-Code included in this camera-ready release:
+Code included in this release:
+
 - object-state estimation and prediction from position measurements (`mua_nbv_prediction`)
 - uncertainty-aware candidate generation and NBV scoring (`mua_nbv_planner`)
 - Gazebo simulation and real-world testbed bringup (`simulation_bringup`, `testbed_bringup`)
-
 
 ## Method At A Glance
 
@@ -47,11 +47,13 @@ At each planning iteration, the pipeline performs the following steps:
 5. **Execute and update.**
    The highest-scoring reachable viewpoint is executed. The new depth observation and object-position measurement are incorporated, and the loop repeats.
 
-## Testbed Setup
+## Real-World Replanning Sequence
 
 <p align="center">
   <img src="docs/assets/testbed.png" alt="Testbed setup" width="86%" />
 </p>
+
+This representative testbed sequence shows the planner operating in closed loop on a physical robot. As the object moves along the trajectory, the robot replans its camera viewpoint at each iteration. Rather than simply following the object, the planner changes the robot-object viewing geometry to expose previously unseen surfaces and improve reconstruction coverage over time.
 
 ## Repository Structure
 
@@ -75,7 +77,7 @@ ws/src/
 ### One-time setup
 
 ```bash
-cd ~/Desktop/mua-nbv
+cd ~/mua-nbv
 source /opt/ros/jazzy/setup.bash
 
 # Creates .venv with --system-site-packages and installs pip deps.
@@ -89,7 +91,7 @@ colcon build --symlink-install
 ### Every new terminal
 
 ```bash
-cd ~/Desktop/mua-nbv
+cd ~/mua-nbv
 source /opt/ros/jazzy/setup.bash
 source .venv/bin/activate
 cd ws
@@ -133,8 +135,7 @@ source install/setup.bash
 ros2 run simulation_bringup experiment_coordinator \
   --ros-args -p target_mode:=dynamic -p pipeline_mode:=full -p iteration:=30
 ```
- 
 
 ## Citation
 
-- https://arxiv.org/abs/2605.17593
+- <https://arxiv.org/abs/2605.17593>
