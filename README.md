@@ -15,6 +15,21 @@
 
 ## 🎉 This paper is accepted to Robotics: Science and Systems (RSS) 2026
 
+## Citation
+
+If you find MUA-NBV useful in your work, please cite our paper:
+
+```bibtex
+@misc{li2026muanbv,
+      title         = {Motion-Uncertainty-Aware Next-Best-View Planning for Moving Object Reconstruction},
+      author        = {Li, Karen and Mantovani, Mattia and Wood, Robert J. and Sabattini, Lorenzo and Gil, Stephanie},
+      year          = {2026},
+      eprint        = {2605.17593},
+      archivePrefix = {arXiv},
+      primaryClass  = {cs.RO}
+}
+```
+
 ## Overview
 
 MUA-NBV is a ROS 2 implementation of paper - **[Motion Uncertainty-Aware Next-Best-View Planning for Moving Object Reconstruction](https://arxiv.org/abs/2605.17593)**
@@ -138,7 +153,3 @@ source install/setup.bash
 ros2 run simulation_bringup experiment_coordinator \
   --ros-args -p target_mode:=dynamic -p pipeline_mode:=full -p iteration:=30
 ```
-
-## Citation
-
-Coming soon...
