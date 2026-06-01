@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>mua_nbv_planner</name>
+  <version>0.1.0</version>
+  <description>
+    Next-Best-View planner for MUA-NBV.
+    Voxel map (OctoMap), ellipse/ring candidate generation, and
+    ellipsoid-projection viewpoint scoring.  All C++, service-driven.
+  </description>
+  <maintainer email="karenli@g.harvard.edu">karen</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>std_srvs</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>builtin_interfaces</depend>
+  <depend>visualization_msgs</depend>
+  <depend>tf2</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf2_eigen</depend>
+  <depend>cv_bridge</depend>
+  <depend>octomap</depend>
+
+  <build_depend>eigen</build_depend>
+  <build_depend>libcgal-dev</build_depend>
+  <build_depend>libopencv-dev</build_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

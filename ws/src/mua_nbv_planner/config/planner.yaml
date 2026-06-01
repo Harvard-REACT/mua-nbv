@@ -1,0 +1,156 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+    # Intrinsics
+    image_width: 320
+    image_height: 240
+    fx: 277.19
+    fy: 277.19
+    cx: 160.0
+    cy: 120.0
+    # Clustering / ellipsoids
+    voxel_resolution_m: 0.03
+
+voxel_map_node:
+  ros__parameters:
+    # Frames
+    target_frame: "target/est_base_link"
+    camera_frame: "pursuer/camera_depth_optical_frame"
+    # Topics
+    input_points_topic: "/target/points"
+    input_step_stamp_topic: "/experiment/captured_cloud_stamp"
+    use_cam_pose_topic: true
+    input_cam_pose_topic: "/experiment/captured_cam_pose"
+    output_occupied_topic: "/nbv/voxels/occupied"
+    output_frontier_topic: "/nbv/voxels/frontier"
+    output_bbox_topic: "/nbv/voxels/bbox"
+    # Service
+    update_service: "/nbv/update/voxels"
+    # Timeouts / waits
+    tf_lookup_timeout_sec: 2.0
+    wait_for_inputs_sec: 2.0
+    # Buffers
+    cloud_buf_max: 50
+    pose_buf_max: 50
+    # Skip integrating identical viewpoints (still publishes outputs)
+    skip_update_if_same_view: true
+    same_view_pos_tol_m: 0.5
+    same_view_yaw_tol_rad: 0.001
+  
+    bbx_half_side_m: 0.8
+    bbx_z_min_m: 0.02
+    bbx_z_max_m: 1.3
+ 
+    # **ray_stride_px**: Cast a ray every N pixels across the image grid.
+    # - Smaller => more rays (slower), denser free space.
+    # - If you halve image resolution, consider halving this too to keep similar angular density.
+    ray_stride_px: 4
+
+    # **point_stride**: Subsample occupied points from the point cloud.
+    # - Larger => faster, less dense occupied carving.
+    point_stride: 3
+
+    # **max_ray_range_m**: Max distance along each ray (meters) to carve free space.
+    # - Set based on sensor range / desired map extent.
+    max_ray_range_m: 2.5
+
+    # **max_steps_per_ray**: Hard cap on number of voxels visited per ray (0 disables cap).
+    # - Prevents long rays when BBX is large.
+    max_steps_per_ray: 100
+
+    # Auto parameterization (geometry/sample driven)
+    auto_params_enable: true
+    auto_voxel_resolution_enable: true
+    auto_nominal_depth_m: 1.0
+    auto_target_voxels_per_diag: 45
+    auto_voxel_res_min_m: 0.01
+    auto_voxel_res_max_m: 0.05
+    auto_target_pixels_per_voxel: 1.5
+    auto_min_ray_stride_px: 2
+    auto_max_ray_stride_px: 12
+    auto_point_stride_min: 1
+    auto_point_stride_max: 6
+    auto_point_stride_ratio: 0.5
+    auto_max_ray_range_scale: 1.3
+    auto_max_steps_margin: 8
+
+ring_generator_node:
+  ros__parameters:
+    # Frames
+    world_frame: "sim_world"
+    base_frame: "pursuer/base_link"
+    camera_frame: "pursuer/camera_link"
+    optical_frame: "pursuer/camera_depth_optical_frame"
+    # Topics
+    input_step_stamp_topic: "/experiment/step_stamp"
+    target_source: "prediction_state"
+    input_pred_state_topic: "/nbv/target_prediction_state"
+    output_optical_topic: "/nbv/candidates_world_optical"
+    output_base_topic: "/nbv/candidates_world_base"
+    # Service
+    service_name: "/nbv/generate/candidates"
+    # Ring params
+    num_candidates: 72
+    base_height_m: 0.0
+    v_min: 0.05
+    # **kappa**: how much to expand candidate radius with uncertainty (larger = more conservative/safer).
+    r_off_m: 1.7
+    kappa: 2.0
+    candidate_mode: "ellipse"
+    # Reachability constraints (dynamic only). Set <= 0 to disable each.
+    reachability_max_dist_m: 2.0
+    reachability_max_yaw_rad: 3.14
+    # Debug visualization (RViz + optional PNG)
+    output_markers_topic: "/nbv/debug/candidates_markers"
+    output_debug_image_topic: "/nbv/debug/candidates_plot"
+    debug_publish_markers: true
+    debug_publish_image: true
+    debug_save_image_png: false
+    debug_dir: "debug/mua_nbv_planner"
+
+score_node:
+  ros__parameters:
+    # Topics
+    input_step_stamp_topic: "/experiment/step_stamp"
+    input_pred_topic: "/nbv/target_prediction"
+    input_pred_state_topic: "/nbv/target_prediction_state"
+    input_candidates_topic: "/nbv/candidates_world_optical"
+    input_frontier_topic: "/nbv/voxels/frontier"
+    input_occupied_topic: "/nbv/voxels/occupied"
+    output_scores_topic: "/nbv/scores"
+    output_best_index_topic: "/nbv/best_index"
+    output_best_candidate_topic: "/nbv/best_candidate"
+    output_proj_img_topic: "/nbv/debug/projection_image"
+    output_ring_img_topic: "/nbv/debug/score_ring_image"
+    # Service (set to match experiment_coordinator default unless you override coordinator params)
+    score_service: "/nbv/generate/scores"
+    # Wait budgets
+    wait_for_inputs_sec: 2.0
+    pred_sync_tol_sec: 0.0
+    require_new_inputs: true 
+
+    min_cluster_pts: 15
+    max_points_per_cluster: 700
+    # GMM
+    min_gmm_cluster_num: 10
+    max_gmm_cluster_num: 40
+    gmm_max_iters: 100
+    gmm_term_eps: 1e-3
+    gmm_use_bic: true
+    gmm_max_points: 2000
+    auto_cluster_params_enable: true
+    auto_min_cluster_pts_floor: 8
+    auto_cluster_k_cap: 50
+    auto_gmm_min_points: 200
+    # Scoring
+    cgal_eps: 0.01
+    depth_decay: 0.5
+    # Monte Carlo
+    v_min: 0.0
+    use_monte_carlo: true
+    mc_num_samples: 30
+    mc_seed: 99
+ 
+    debug_save_projection_png: true
+    debug_save_all_candidates: true
+    debug_dir: "debug/mua_nbv_planner"

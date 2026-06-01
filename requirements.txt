@@ -1,0 +1,32 @@
+# MUA-NBV Python dependencies (pip-only, non-ROS).
+# Install inside a --system-site-packages venv so ROS 2 packages are available.
+# See setup_env.sh for setup instructions.
+
+# Core numerics
+numpy>=2.0
+jax>=0.4
+jaxlib>=0.4
+
+# Point cloud / 3D visualization
+open3d>=0.18
+
+# Plotting & data
+matplotlib>=3.6
+scipy>=1.10
+pandas>=2.0
+scikit-learn>=1.6
+
+# Config / serialization
+PyYAML>=6.0
+
+# Misc
+tqdm>=4.60
+
+# numpy 2.x ABI compat — system numexpr/bottleneck are compiled against
+# numpy 1.x; installing them in the venv pulls numpy-2-compatible wheels.
+numexpr>=2.9
+bottleneck>=1.4
+
+# Testing
+pytest>=8.0
+pytest-cov>=4.0

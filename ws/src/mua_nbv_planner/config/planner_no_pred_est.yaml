@@ -1,0 +1,106 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+    # Intrinsics (keep identical to planner.yaml)
+    image_width: 320
+    image_height: 240
+    fx: 277.19
+    fy: 277.19
+    cx: 160.0
+    cy: 120.0
+    voxel_resolution_m: 0.03
+
+voxel_map_node:
+  ros__parameters:
+    # Frames: build map in the estimated target frame (non-cheating)
+    target_frame: "target/est_base_link"
+    camera_frame: "pursuer/camera_depth_optical_frame"
+    input_points_topic: "/target/points"
+    input_step_stamp_topic: "/experiment/captured_cloud_stamp"
+    use_cam_pose_topic: true
+    input_cam_pose_topic: "/experiment/captured_cam_pose"
+    output_occupied_topic: "/nbv/voxels/occupied"
+    output_frontier_topic: "/nbv/voxels/frontier"
+    output_bbox_topic: "/nbv/voxels/bbox"
+    update_service: "/nbv/update/voxels"
+    tf_lookup_timeout_sec: 2.0
+    wait_for_inputs_sec: 2.0
+    cloud_buf_max: 50
+    pose_buf_max: 50
+    skip_update_if_same_view: true
+    same_view_pos_tol_m: 0.5
+    same_view_yaw_tol_rad: 0.001
+    bbx_half_side_m: 0.5
+    bbx_z_min_m: 0.02
+    bbx_z_max_m: 0.9
+    ray_stride_px: 8
+    point_stride: 3
+    max_ray_range_m: 2.5
+    max_steps_per_ray: 100
+
+ring_generator_node:
+  ros__parameters:
+    world_frame: "sim_world"
+    base_frame: "pursuer/base_link"
+    camera_frame: "pursuer/camera_link"
+    optical_frame: "pursuer/camera_depth_optical_frame"
+    input_step_stamp_topic: "/experiment/step_stamp"
+    # Baseline: use last estimate state (not prediction, not TF ground truth)
+    target_source: "estimate_state"
+    input_est_state_topic: "/nbv/target_estimation_state"
+    # Keep the prediction topic configured too (unused in estimate_state mode)
+    input_pred_state_topic: "/nbv/target_prediction_state"
+    output_optical_topic: "/nbv/candidates_world_optical"
+    output_base_topic: "/nbv/candidates_world_base"
+    service_name: "/nbv/generate/candidates"
+    num_candidates: 40
+    base_height_m: 0.0
+    v_min: 0.05
+    r_off_m: 2.0
+    kappa: 2.0
+    candidate_mode: "ellipse"
+    reachability_max_dist_m: 1.3
+    reachability_max_yaw_rad: 1.57
+    output_markers_topic: "/nbv/debug/candidates_markers"
+    output_debug_image_topic: "/nbv/debug/candidates_plot"
+    debug_publish_markers: true
+    debug_publish_image: true
+    debug_save_image_png: false
+    debug_dir: "debug/mua_nbv_planner"
+
+score_node:
+  ros__parameters:
+    input_step_stamp_topic: "/experiment/step_stamp"
+    # Dynamic scoring path, but feed it the estimate topics.
+    static_target: false
+    input_pred_topic: "/nbv/target_estimation"
+    input_pred_state_topic: "/nbv/target_estimation_state"
+    input_candidates_topic: "/nbv/candidates_world_optical"
+    input_frontier_topic: "/nbv/voxels/frontier"
+    input_occupied_topic: "/nbv/voxels/occupied"
+    output_scores_topic: "/nbv/scores"
+    output_best_index_topic: "/nbv/best_index"
+    output_best_candidate_topic: "/nbv/best_candidate"
+    output_proj_img_topic: "/nbv/debug/projection_image"
+    output_ring_img_topic: "/nbv/debug/score_ring_image"
+    score_service: "/nbv/generate/scores"
+    wait_for_inputs_sec: 2.0
+    pred_sync_tol_sec: 0.0
+    require_new_inputs: true
+    min_cluster_pts: 50
+    max_points_per_cluster: 700
+    min_gmm_cluster_num: 5
+    max_gmm_cluster_num: 15
+    gmm_max_iters: 100
+    gmm_term_eps: 1e-3
+    gmm_use_bic: true
+    gmm_max_points: 1000
+    cgal_eps: 0.01
+    depth_decay: 0.5
+    v_min: 0.0
+    # No-pred baseline: deterministic scoring (no Monte-Carlo).
+    use_monte_carlo: false
+    debug_save_projection_png: true
+    debug_save_all_candidates: true
+    debug_dir: "debug/mua_nbv_planner"
+

@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>simulation_bringup</name>
+  <version>0.1.0</version>
+  <description>
+    Gazebo simulation bringup for MUA-NBV: target stepper, trajectory predictor,
+    cloud capturer, pursuer spawner, experiment coordinator, and TF bridges.
+  </description>
+
+  <maintainer email="karenli@g.harvard.edu">karen</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>mua_nbv_py_utils</exec_depend>
+  <exec_depend>mua_nbv_prediction</exec_depend>
+  <exec_depend>mua_nbv_common</exec_depend>
+  <exec_depend>mua_nbv_planner</exec_depend>
+
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>tf2_msgs</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>sensor_msgs_py</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>builtin_interfaces</exec_depend>
+  <exec_depend>ros_gz_interfaces</exec_depend>
+  <exec_depend>ros_gz_sim</exec_depend>
+  <exec_depend>ros_gz_bridge</exec_depend>
+
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <gazebo_ros
+      gazebo_model_path="${prefix}/models"
+      gazebo_media_path="${prefix}/worlds"
+      plugin_path="${prefix}/lib"/>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

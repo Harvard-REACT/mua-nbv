@@ -1,0 +1,157 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+
+
+sim_static_tf:
+  ros__parameters:
+    # Frames
+    base_frame: "pursuer/base_link"
+    camera_link_frame: "pursuer/camera_link"
+    camera_optical_frame: "pursuer/camera_depth_optical_frame"
+    # Camera mount position (Base -> CameraLink)
+    cam_x: 0.0
+    cam_y: 0.0
+    cam_z: 0.3
+    # CameraLink -> Optical frame rotation (optical convention)
+    optical_roll: -1.57079632679
+    optical_pitch: 0.0
+    optical_yaw: -1.57079632679
+
+
+sim_pose_tf_bridge:
+  ros__parameters:
+    world_frame: "sim_world"
+    pursuer_base_frame: "pursuer/base_link"
+    target_base_frame: "target/base_link"
+    pursuer_pose_topic: "/sim/pursuer/pose"
+    target_pose_topic: "/sim/target/pose"
+    # Planarize TF (recommended for this sim)
+    flatten_z: true
+    flatten_z_value: 0.0
+    flatten_roll_pitch: true
+
+
+target_stepper:
+  ros__parameters:
+    world_name: "sim_world"
+    entity_name: "target"
+    # Topics
+    input_target_pose_topic: "/sim/target/pose"
+    output_step_stamp_topic: "/experiment/step_stamp"
+    output_step_index_topic: "/experiment/step"
+    # Service
+    service_name: "/experiment/target/advance"
+    # Trajectory
+    trajectory_type: "cv_random"
+    trajectory_scale: 3.0
+    num_points: 20
+    cv_random_seed: 2
+    cv_random_q_c: 0.005
+    cv_random_v0: 0.5
+    cv_random_dt: 1.0
+    center_x: 0.0
+    center_y: 0.0
+    z: 0.01
+    yaw_offset: 0.0
+    start_index: 1
+    # Tolerances / waits
+    pose_match_tol_m: 0.005
+    pose_match_timeout_sec: 2.0
+    # Debug visualization (RViz)
+    publish_waypoints_markers: true
+    waypoints_markers_topic: "/experiment/target/trajectory_markers"
+    waypoints_frame_id: "sim_world"
+    waypoints_line_width: 0.03
+    waypoints_point_scale: 0.08
+    waypoints_alpha: 0.9
+    waypoints_close_loop: false
+    waypoints_publish_period_sec: 0.0
+
+
+trajectory_predictor:
+  ros__parameters:
+    # Frames
+    world_frame: "sim_world"
+    target_est_frame: "target/est_base_link"
+    # Topics
+    input_target_gt_topic: "/sim/target/pose"
+    input_step_stamp_topic: "/experiment/step_stamp"
+    output_estimation_topic: "/nbv/target_estimation"
+    output_prediction_topic: "/nbv/target_prediction"
+    output_prediction_state_topic: "/nbv/target_prediction_state"
+    publish_estimation_path: true
+    output_estimation_path_topic: "/nbv/estimation_path"
+    estimation_path_max_poses: 0
+    publish_measurement_markers: true
+    output_measurement_markers_topic: "/nbv/measurement_markers"
+    measurement_markers_sigma_scale: 2.0
+    # Service
+    service_name: "/experiment/update/measurements"
+    # Broadcasting rate
+    tf_publish_rate_hz: 30.0
+    # GP params
+    window_L: 5
+    dt_pred: 1.0
+    observe_position_only: true
+    q_c: 0.01
+    meas_std_x: 0.1
+    meas_std_y: 0.1
+    init_pos_var: 0.1
+    init_vel_var: 0.1
+    v_min: 0.05
+    pose_buffer_len: 200
+
+
+cloud_capturer:
+  ros__parameters:
+    # Frames
+    world_frame: "sim_world"
+    target_est_frame: "target/est_base_link"
+    debug_target_frame: "target/base_link"
+    cam_pose_frame: "pursuer/camera_depth_optical_frame"
+    # Topics
+    input_stamp_topic: "/experiment/step_stamp"
+    input_cloud_topic: "/pursuer/camera/depth/color/points"
+    output_cloud_topic: "/target/points"
+    output_captured_stamp_topic: "/experiment/captured_cloud_stamp"
+    output_cam_pose_topic: "/experiment/captured_cam_pose"
+    # Filter
+    z_percentile: 2.0
+    z_margin: 0.05
+    # Service
+    service_name: "/experiment/capture/cloud"
+    # Output
+    out_dir: "experiment"
+    # Timeouts
+    wait_for_inputs_sec: 2.0
+    tf_lookup_timeout_sec: 2.0
+    tf_time_source: "step"
+    output_stamp_source: "step"
+    # Debug
+    debug_use_fixed_target_frame: false
+
+
+pursuer_spawner:
+  ros__parameters:
+    world_name: "sim_world"
+    entity_name: "pursuer"
+    # Frames
+    base_frame: "pursuer/base_link"
+    optical_frame: "pursuer/camera_depth_optical_frame"
+    # Topics
+    input_step_stamp_topic: "/experiment/step_stamp"
+    input_best_candidate_topic: "/nbv/best_candidate"
+    input_candidates_topic: "/nbv/candidates_world_base"
+    input_pursuer_pose_topic: "/sim/pursuer/pose"
+    # Service
+    service_name: "/experiment/pursuer/spawn"
+    service_random_name: "/experiment/pursuer/spawn_random"
+    # Timeouts / waits
+    wait_for_candidate_sec: 2.0
+    tf_lookup_timeout_sec: 2.0
+    pose_match_tol_m: 0.01
+    pose_match_timeout_sec: 2.0
+    random_seed: 234
+    # First spawn_random() only: align NBV dynamic seed with tracking (XY closest base pose to pursuer).
+    seed_spawn_mode: "closest_pursuer"

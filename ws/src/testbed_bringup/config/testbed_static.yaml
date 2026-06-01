@@ -1,0 +1,135 @@
+vrpn_tf_bridge:
+  ros__parameters:
+    world_frame: "world"
+    pursuer_pose_topic: "/vrpn_mocap/pursuer/pose"
+    target_pose_topic: "/vrpn_mocap/target/pose"
+
+    pursuer_base_frame: "pursuer/base_link"
+    target_base_frame: "target/base_link"
+
+    flatten_z: true
+    flatten_z_value: 0.0
+    flatten_roll_pitch: true
+
+    # If turning-in-place looks like translation, set these offsets (meters)
+    # from the VRPN rigid-body origin to the robot's true rotation center.
+    pursuer_offset_x: 0.05
+    pursuer_offset_y: 0.0
+    pursuer_offset_z: 0.0
+    target_offset_x: 0.0
+    target_offset_y: 0.0
+    target_offset_z: 0.0
+
+    # Optional yaw offsets (rad) if VRPN yaw is rotated vs base_link yaw
+    pursuer_yaw_offset_rad: 0.0
+    target_yaw_offset_rad: 0.0
+
+testbed_static_tf:
+  ros__parameters:
+    base_frame: "pursuer/base_link"
+    camera_link_frame: "pursuer/camera_link"
+    camera_optical_frame: "pursuer/camera_depth_optical_frame"
+
+    # base -> camera_link translation
+    cam_x: 0.0
+    cam_y: 0.0
+    cam_z: 0.23
+    # camera_link -> optical rotation (optical convention)
+    optical_roll: -1.5708
+    optical_pitch: 0.0
+    optical_yaw: -1.5708
+
+cloud_capturer:
+  ros__parameters:
+    input_depth_topic: "/pursuer/camera/depth/image_rect_raw"
+    input_camera_info_topic: "/pursuer/camera/depth/camera_info"
+    output_cloud_topic: "/target/points"
+    service_name: "/experiment/capture/cloud"
+    output_step_stamp_topic: "/experiment/step_stamp"
+    output_captured_stamp_topic: "/experiment/captured_cloud_stamp"
+    output_cam_pose_topic: "/experiment/captured_cam_pose"
+
+    target_frame: "target/base_link"
+    use_latest_tf: true
+    tf_lookup_timeout_sec: 2.0
+    camera_frame_fallback: "pursuer/camera_depth_optical_frame"
+    cam_pose_frame: "pursuer/camera_depth_optical_frame"
+
+    pixel_stride: 1
+    min_depth_m: 0.5
+    max_depth_m: 1.5
+
+    target_clip_enable: true
+    target_min_z: 0.01
+    target_max_z: 1.0
+
+    # Saving (service captures + writes PCD + meta JSON)
+    out_dir: "debug/experiment"
+    save_enable: true
+    # Protocol A: capture on demand, not continuous streaming.
+    publish_continuous: false
+    wait_for_inputs_sec: 2.0
+    group_by_run_id: false
+    run_id_topic: "/experiment/run_id"
+
+pursuer_mover:
+  ros__parameters:
+    service_name: "/experiment/pursuer/go_to_best"
+    best_candidate_topic: "/nbv/best_candidate"
+    candidate_is_optical_pose: true
+
+    world_frame: "world"
+    base_frame: "pursuer/base_link"
+    optical_frame: "pursuer/camera_depth_optical_frame"
+    tf_lookup_timeout_sec: 2.0
+
+    vrpn_pursuer_pose_topic: "/vrpn_mocap/pursuer/pose"
+    vrpn_target_pose_topic: "/vrpn_mocap/target/pose"
+    cmd_vel_topic: "/pursuer/cmd_vel"
+    cmd_frame_id: "base_link"
+    cmd_stamp_zero: true
+
+    # Feedback source (recommended on testbed)
+    use_tf_feedback: true
+    # If robot yaw is consistently rotated, set e.g. +/-1.5708
+    yaw_offset_rad: 0.0
+
+    control_rate_hz: 30.0
+    # Limits
+    max_v: 0.16
+    max_w: 1.5
+    # Heading P
+    k_heading: 0.3
+    # Distance P
+    k_dist: 0.3
+    # Heading Slow/Stop
+    heading_stop_rad: 0.6
+    # Braking / deadband
+    v_slow_radius: 0.3
+    v_near_max: 0.05
+    w_deadband_rad: 0.12
+    # Pose match tolerance
+    pose_match_tol_m: 0.15
+    # Collision safety (stop if pursuer-target gets too close)
+    min_target_sep_m: 0.3
+
+    # After reaching position, rotate to match candidate yaw
+    align_goal_yaw: true
+    yaw_match_tol_rad: 0.45
+
+    # Timeout policy (adaptive): max(timeout_min_sec, dist*timeout_per_meter_sec) + timeout_yaw_budget_sec
+    timeout_min_sec: 30.0
+    timeout_per_meter_sec: 25.0
+    timeout_yaw_budget_sec: 10.0
+
+    # Debug logging (throttled)
+    log_status: true
+    log_period_sec: 1.0
+
+    flatten_z: true
+    flatten_z_value: 0.0
+    flatten_roll_pitch: true
+
+    # Safety switch (set true when ready to move the robot)
+    enable_cmd: true
+    dry_run: false

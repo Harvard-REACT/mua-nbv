@@ -1,0 +1,180 @@
+vrpn_tf_bridge:
+  ros__parameters:
+    world_frame: "world"
+    pursuer_pose_topic: "/vrpn_mocap/pursuer/pose"
+    target_pose_topic: "/vrpn_mocap/target/pose"
+
+    pursuer_base_frame: "pursuer/base_link"
+    target_base_frame: "target/base_link"
+
+    flatten_z: true
+    flatten_z_value: 0.0
+    flatten_roll_pitch: true
+
+    # If turning-in-place looks like translation, set these offsets (meters)
+    # from the VRPN rigid-body origin to the robot's true rotation center.
+    pursuer_offset_x: -0.05
+    pursuer_offset_y: 0.0
+    pursuer_offset_z: 0.0
+    target_offset_x: 0.0
+    target_offset_y: 0.0
+    target_offset_z: 0.0
+
+    # Optional yaw offsets (rad) if VRPN yaw is rotated vs base_link yaw
+    pursuer_yaw_offset_rad: 0.0
+    target_yaw_offset_rad: 0.0
+    # VRPN stamps can be zero/unsynced; stamp TF with now so 'world' exists in TF.
+    tf_stamp_mode: "now"
+
+testbed_static_tf:
+  ros__parameters:
+    base_frame: "pursuer/base_link"
+    camera_link_frame: "pursuer/camera_link"
+    camera_optical_frame: "pursuer/camera_depth_optical_frame"
+
+    # base -> camera_link translation
+    cam_x: 0.0
+    cam_y: 0.0
+    cam_z: 0.23
+    # camera_link -> optical rotation (optical convention)
+    optical_roll: -1.5708
+    optical_pitch: 0.0
+    optical_yaw: -1.5708
+
+cloud_capturer:
+  ros__parameters:
+    input_depth_topic: "/pursuer/camera/depth/image_rect_raw"
+    input_camera_info_topic: "/pursuer/camera/depth/camera_info"
+    input_rgb_topic: "/pursuer/camera/color/image_raw"
+    save_rgb_enable: false
+    rgb_wait_for_new_sec: 6.0
+    rgb_require_new: true
+    output_cloud_topic: "/target/points"
+    service_name: "/experiment/capture/cloud"
+    output_step_stamp_topic: "/experiment/step_stamp"
+    output_captured_stamp_topic: "/experiment/captured_cloud_stamp"
+    output_cam_pose_topic: "/experiment/captured_cam_pose"
+
+    # Dynamic mode voxelizer expects clouds/cam_pose in target_est_frame
+    target_frame: "target/est_base_link"
+    # Also save a second PCD in Optitrack/VRPN base_link frame.
+    save_gt_enable: true
+    gt_target_frame: "target/base_link"
+    use_latest_tf: true
+    tf_lookup_timeout_sec: 2.0
+    camera_frame_fallback: "pursuer/camera_depth_optical_frame"
+    cam_pose_frame: "pursuer/camera_depth_optical_frame"
+
+    pixel_stride: 1
+    min_depth_m: 0.5
+    max_depth_m: 1.5
+
+    target_clip_enable: true
+    target_min_z: 0.01
+    target_max_z: 1.0
+
+    # Drop far artifacts: keep only the main connected component (≈10cm gap threshold)
+    spatial_filter_enable: true
+    spatial_filter_mode: "largest_component"
+    spatial_filter_voxel_size_m: 0.10
+    spatial_filter_min_component_points: 200
+
+    out_dir: "experiment"
+    save_enable: true
+    publish_continuous: false
+    # In dynamic mode, /experiment/step_stamp comes from target_stepper (bootstrap-friendly).
+    publish_step_stamp: false
+
+    wait_for_inputs_sec: 15.0
+    group_by_run_id: true
+    run_id_topic: "/experiment/run_id"
+
+    stamp_correction_mode: "none" # "none" | "auto" | "fixed"
+    stamp_correction_fixed_offset_sec: 0.0
+    stamp_correction_alpha: 0.05
+
+target_stepper:
+  ros__parameters:
+    vrpn_pose_topic: "/vrpn_mocap/target/pose"
+    cmd_vel_topic: "/target/cmd_vel"
+    # Turtlebot3 stamped cmd_vel commonly expects stamp=0 and frame_id=base_link
+    cmd_frame_id: "base_link"
+    cmd_stamp_zero: true
+    output_step_stamp_topic: "/experiment/step_stamp"
+    output_step_index_topic: "/experiment/step"
+    output_waypoint_topic: "/experiment/target/waypoint"
+    service_name: "/experiment/target/advance"
+    step_stamp_mode: "step_index"
+
+    # Trajectory: lab-aligned S-curve inside ~2x5 rectangle (y span=2m, x span=5m)
+    trajectory_type: "s_curve"
+    s_length_x_m: 6.0
+    s_width_y_m: 2.0
+    num_points: 16
+    center_on_start: false
+    center_x: -1.0
+    center_y: 1.2
+    start_index: 0
+    yaw_offset: 0.0
+
+    # RViz visualization
+    publish_waypoints_markers: true
+    waypoints_markers_topic: "/experiment/target/trajectory_markers"
+    waypoints_frame_id: "world"
+    waypoints_close_loop: false
+    waypoints_publish_period_sec: 1.0
+
+    # Control
+    control_rate_hz: 30.0
+    min_v: 0.02
+    max_v: 0.13
+    max_w: 0.6
+    k_heading: 1.0
+    k_dist: 0.8
+    heading_slow_rad: 1.2
+    heading_slow_scale: 0.4
+    turn_in_place_rad: 0.3
+    v_turn_penalty: 0.5
+    stop_distance_m: 0.05
+    pose_match_tol_m: 0.2
+    pose_match_timeout_sec: 50.0
+
+    # Timeout (optional, just so it doesn’t “give up” too soon)
+    timeout_min_sec: 120.0
+    timeout_per_meter_sec: 35.0
+
+    # Safety
+    enable_cmd: true # true
+    dry_run: false # false
+
+trajectory_predictor:
+  ros__parameters:
+    world_frame: "world"
+    target_est_frame: "target/est_base_link"
+    measurement_source: "waypoint"
+    input_waypoint_topic: "/experiment/target/waypoint"
+    input_target_gt_topic: "/vrpn_mocap/target/pose"
+    input_step_stamp_topic: "/experiment/step_stamp"
+    # IMPORTANT for testbed dynamic: step_stamp is a logical id (sec=step_k), not wall time.
+    token_is_step_id: true
+    output_estimation_topic: "/nbv/target_estimation"
+    output_prediction_topic: "/nbv/target_prediction"
+    output_prediction_state_topic: "/nbv/target_prediction_state"
+    output_estimation_state_topic: "/nbv/target_estimation_state"
+    service_name: "/experiment/update/measurements"
+    pose_buffer_len: 200
+    # Align with simulation bootstrap: predictor returns success=false until it has L measurements.
+    window_L: 5
+    dt_pred: 3.0
+    v_min: 0.05
+    waypoint_dt_sec: 3.0
+    q_c: 0.01
+    # Optional measurement noise (set to 0.0 to disable)
+    meas_std_x: 0.1
+    meas_std_y: 0.1
+    # Bootstrap covariance (used during bootstrapping)
+    init_pos_var: 0.1
+    init_vel_var: 0.05
+    pos_var: 0.01
+    vel_var: 0.01
+    tf_publish_rate_hz: 30.0

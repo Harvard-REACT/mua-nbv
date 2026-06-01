@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+dist/
+.pytest_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+*.bak/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ROS 2 / colcon build artifacts
+ws/build/
+ws/install/
+ws/log/
+logs/
+debug/
+
+# Experiment data (large, generated at runtime)
+ws/experiment/
+ws/debug/
+ws/scripts/
+experiment/
+third_party/
+
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
